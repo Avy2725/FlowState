@@ -1,0 +1,152 @@
+:root {
+  --dashboard-bg: #f8fbff;
+  --dashboard-surface: rgba(255, 255, 255, 0.94);
+  --dashboard-border: rgba(15, 23, 42, 0.08);
+  --dashboard-accent: #5268ff;
+  --dashboard-accent-soft: #798cff;
+  --dashboard-text: #1e293b;
+  --dashboard-muted: #64748b;
+}
+
+.admin-dashboard-shell {
+  min-height: 100vh;
+  padding: 0 0 4rem;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(82, 104, 255, 0.18),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(121, 140, 255, 0.14),
+      transparent 20%
+    ),
+    linear-gradient(180deg, #f8fbff 0%, #edf3ff 100%);
+}
+
+.admin-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  margin: 0 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 24px 56px rgba(15, 23, 42, 0.08);
+  border-radius: 1.5rem;
+}
+
+.admin-navbar .navbar-brand {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.admin-navbar .brand-mark {
+  display: inline-block;
+  width: 10px;
+  height: 38px;
+  margin-right: 0.75rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    180deg,
+    var(--dashboard-accent),
+    var(--dashboard-accent-soft)
+  );
+}
+
+.admin-navbar .profile-pill {
+  border-radius: 999px;
+  padding: 0.35rem 0.95rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.admin-navbar .profile-pill img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.dashboard-header,
+.dashboard-table-card {
+  border-radius: 2rem;
+  background: var(--dashboard-surface);
+  border: 1px solid var(--dashboard-border);
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-header {
+  padding: 1.75rem 1.75rem 1.5rem;
+}
+
+.dashboard-table-card {
+  overflow: hidden;
+  padding: 20px;
+}
+
+.dashboard-table-card .table {
+  margin-bottom: 0;
+}
+
+.dashboard-table-card img {
+  border-radius: 1rem;
+  object-fit: cover;
+}
+
+.status-badge.Active {
+  background: var(--dashboard-accent);
+}
+
+.status-badge.Inactive {
+  background: var(--dashboard-muted);
+}
+
+.status-badge.Pending {
+  background: #f59e0b;
+  color: #000;
+}
+
+.search-bar {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  max-width: 920px;
+}
+
+.search-bar .form-control {
+  border-radius: 1.75rem;
+  flex: 1;
+  min-width: 400px;
+  padding: 1.1rem 1.4rem;
+  font-size: 1rem;
+}
+
+.search-bar .btn {
+  min-width: 100px;
+  border-radius: 1.75rem;
+  padding: 1rem 1.75rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 991.98px) {
+  .search-bar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .admin-dashboard-shell {
+    padding-bottom: 2rem;
+  }
+
+  .admin-navbar {
+    border-radius: 1.25rem;
+    margin: 0.5rem 1rem 1.25rem;
+  }
+
+  .dashboard-header {
+    padding: 1.5rem;
+  }
+}
