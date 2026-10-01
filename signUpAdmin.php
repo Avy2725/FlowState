@@ -1,3 +1,17 @@
+<?php
+session_start();
+require_once "connection.php";
+
+// Admin accounts can only be created by a signed-in admin.
+// The very first admin can still be created while none exist.
+$adminCheck = $conn->query("SELECT 1 FROM ca_users WHERE ca_userType = 'Admin' LIMIT 1");
+$hasAdmin = $adminCheck && $adminCheck->num_rows > 0;
+$isAdminSession = isset($_SESSION['userType']) && strtolower($_SESSION['userType']) === 'admin';
+if ($hasAdmin && !$isAdminSession) {
+    http_response_code(403);
+    exit('Admin accounts can only be created by a signed-in admin.');
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,7 +139,7 @@ if(isset($_POST['sub'])) {
   $additionalInfo = $_POST['additionalInfo'] ?? '';
   $username = $_POST['username'] ?? '';
   $userPassword = md5($_POST['password'] ?? '');
-  $otp = rand(0000000,9999999);
+  $otp = random_int(100000, 999999);
   $fullname = $firstName . " " . $lastName;
 
   // Handle uploaded image safely
@@ -152,8 +166,8 @@ if(isset($_POST['sub'])) {
 
     
     if ($result === true) {
-        session_start();
         $_SESSION['email'] = $email;
+        $_SESSION['otp_attempts'] = 0;
         $_SESSION['otp'] = $otp;
         send_verification($fullname, $email, $otp);
         ?>

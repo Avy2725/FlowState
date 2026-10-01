@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,20 +49,22 @@ require_once "connection.php";
 
 if (isset($_POST['ver'])) {
     $enteredOtp = trim($_POST['otp']);
+    $email = $_SESSION['email'] ?? '';
+    $_SESSION['otp_attempts'] = ($_SESSION['otp_attempts'] ?? 0) + 1;
 
-    // 1. Only a numeric OTP can match, so the 'NULL' placeholder left after verification never does
+    // 1. Only a numeric OTP for the email that just signed up can match, and attempts are limited
     $fieldnames = null;
-    if (ctype_digit($enteredOtp)) {
-        $stmt = $conn->prepare("SELECT ca_otp FROM ca_users WHERE ca_otp = ? AND ca_status = 'Pending' LIMIT 1");
-        $stmt->bind_param("s", $enteredOtp);
+    if ($email !== '' && $_SESSION['otp_attempts'] <= 5 && ctype_digit($enteredOtp)) {
+        $stmt = $conn->prepare("SELECT ca_otp FROM ca_users WHERE ca_email = ? AND ca_otp = ? AND ca_status = 'Pending' LIMIT 1");
+        $stmt->bind_param("ss", $email, $enteredOtp);
         $stmt->execute();
         $fieldnames = $stmt->get_result()->fetch_assoc();
     }
 
     // 2. If a matching pending account was found, activate it
     if ($fieldnames) {
-        $updateStmt = $conn->prepare("UPDATE ca_users SET ca_status = 'Active', ca_otp = 'NULL' WHERE ca_otp = ? AND ca_status = 'Pending'");
-        $updateStmt->bind_param("s", $enteredOtp);
+        $updateStmt = $conn->prepare("UPDATE ca_users SET ca_status = 'Active', ca_otp = 'NULL' WHERE ca_email = ? AND ca_otp = ? AND ca_status = 'Pending'");
+        $updateStmt->bind_param("ss", $email, $enteredOtp);
         $updateStmt->execute();
 
         ?>

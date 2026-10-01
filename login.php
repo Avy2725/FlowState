@@ -21,6 +21,7 @@ if (isset($_POST['sub'])) {
 
         // Check the user's status
         if ($fieldnames['ca_status'] === 'Active') {
+            session_regenerate_id(true);
             $_SESSION['userType'] = $fieldnames['ca_userType'];
             $_SESSION['full'] = $fieldnames['ca_lname'] . ", " . $fieldnames['ca_fname'];
             $_SESSION['ca_ImgPath'] = $fieldnames['ca_ImgPath'];
