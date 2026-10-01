@@ -127,18 +127,27 @@ if(isset($_POST['sub'])) {
     $otp = rand(0000000,9999999);
     $fullname = $firstName . " " . $lastName;
 
-    $imagepath = "CA_IMG/" . $_FILES["imgUp"]["name"];
-    copy($_FILES["imgUp"]["tmp_name"], $imagepath);
+    $imagepath = '';
+    $allowedTypes = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif'];
+    if (!empty($_FILES['imgUp']['name']) && is_uploaded_file($_FILES['imgUp']['tmp_name'])) {
+        $ext = strtolower(pathinfo($_FILES['imgUp']['name'], PATHINFO_EXTENSION));
+        $mime = mime_content_type($_FILES['imgUp']['tmp_name']);
+        if (isset($allowedTypes[$ext]) && $allowedTypes[$ext] === $mime) {
+            $imagepath = 'CA_IMG/' . bin2hex(random_bytes(16)) . '.' . $ext;
+            move_uploaded_file($_FILES['imgUp']['tmp_name'], $imagepath);
+        }
+    }
+
+    $stmt = $conn->prepare("INSERT INTO ca_users (ca_fname, ca_lname, ca_gender, ca_email, ca_phoneNo, ca_address, ca_addInfo, ca_userName, ca_userPass, ca_ImgPath, ca_otp, ca_status, ca_userType, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', 'User', NOW())");
+    $stmt->bind_param("sssssssssss", $firstName, $lastName, $gender, $email, $contact, $address, $additionalInfo, $username, $userPassword, $imagepath, $otp);
+
+    $result = $stmt->execute();
+
+
+
+
     
-  $sql = "INSERT INTO ca_users (ca_fname, ca_lname, ca_gender, ca_email, ca_phoneNo, ca_address, ca_addInfo, ca_userName, ca_userPass, ca_ImgPath, ca_otp, ca_status, ca_userType, created_at) VALUES ('$firstName', '$lastName', '$gender', '$email', '$contact', '$address', '$additionalInfo', '$username', '$userPassword', '$imagepath', '$otp', 'Pending', 'User', NOW())";
-    
-
-    $result = $conn->query($sql);
-
-
-
-    
-    if ($result === TRUE) {
+    if ($result === true) {
         session_start();
         $_SESSION['email'] = $email;
         $_SESSION['otp'] = $otp;
