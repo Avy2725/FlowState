@@ -1,0 +1,7 @@
+connection.php
+varifyotpemail.php
+CA_IMG/*
+!CA_IMG/.gitkeep
+.vscode/
+.idea/
+*.log
