@@ -773,7 +773,7 @@ function renderTaskTable($tasksData, $projectId = null) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // Store all tasks data for edit modal
-    const tasksData = <?php echo json_encode($tasks); ?>;
+    const tasksData = <?php echo json_encode($tasks, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
     document.addEventListener('DOMContentLoaded', function () {
         var toggles = document.querySelectorAll('.due-toggle-btn');

@@ -146,8 +146,8 @@ if (!empty($_GET['searchFoulWords'])) {
             <div class="ms-auto d-flex align-items-center gap-3 flex-column flex-sm-row">
                 <div class="dropdown">
                     <a class="btn btn-light profile-pill d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="<?php echo $_SESSION['ca_ImgPath']; ?>" alt="Admin avatar">
-                        <span><?php echo $_SESSION['full']; ?></span>
+                        <img src="<?php echo htmlspecialchars((string)($_SESSION['ca_ImgPath']), ENT_QUOTES, 'UTF-8'); ?>" alt="Admin avatar">
+                        <span><?php echo htmlspecialchars((string)($_SESSION['full']), ENT_QUOTES, 'UTF-8'); ?></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                         <li><a class="dropdown-item" href="logout.php">Sign out</a></li>
@@ -171,7 +171,7 @@ if (!empty($_GET['searchFoulWords'])) {
 
     <?php if ($feedback): ?>
         <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <?php echo $feedback; ?>
+            <?php echo htmlspecialchars((string)($feedback), ENT_QUOTES, 'UTF-8'); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
@@ -181,8 +181,8 @@ if (!empty($_GET['searchFoulWords'])) {
         <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3><?php echo $viewingUser['ca_fname'] . ' ' . $viewingUser['ca_lname']; ?>'s Tasks & Projects</h3>
-                    <p class="text-muted mb-0"><?php echo $viewingUser['ca_email']; ?> - <?php echo $viewingUser['ca_userType']; ?></p>
+                    <h3><?php echo htmlspecialchars((string)($viewingUser['ca_fname'] . ' ' . $viewingUser['ca_lname']), ENT_QUOTES, 'UTF-8'); ?>'s Tasks & Projects</h3>
+                    <p class="text-muted mb-0"><?php echo htmlspecialchars((string)($viewingUser['ca_email']), ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars((string)($viewingUser['ca_userType']), ENT_QUOTES, 'UTF-8'); ?></p>
                 </div>
                 <a href="admindashboard.php" class="btn btn-secondary">Back to Users</a>
             </div>
@@ -202,8 +202,8 @@ if (!empty($_GET['searchFoulWords'])) {
                             <tbody>
                                 <?php while ($project = $userProjects->fetch_assoc()): ?>
                                     <tr>
-                                        <td><strong><?php echo $project['project_name']; ?></strong></td>
-                                        <td><?php echo isset($project['project_description']) ? $project['project_description'] : '-'; ?></td>
+                                        <td><strong><?php echo htmlspecialchars((string)($project['project_name']), ENT_QUOTES, 'UTF-8'); ?></strong></td>
+                                        <td><?php echo htmlspecialchars((string)(isset($project['project_description']) ? $project['project_description'] : '-'), ENT_QUOTES, 'UTF-8'); ?></td>
                                         <td><?php echo date('M j, Y', strtotime($project['created_at'])); ?></td>
                                     </tr>
                                 <?php endwhile; ?>
@@ -232,11 +232,11 @@ if (!empty($_GET['searchFoulWords'])) {
                             <tbody>
                                 <?php while ($task = $userTasks->fetch_assoc()): ?>
                                     <tr>
-                                        <td><strong><?php echo $task['task_title']; ?></strong></td>
-                                        <td><?php echo isset($task['task_description']) ? $task['task_description'] : '-'; ?></td>
+                                        <td><strong><?php echo htmlspecialchars((string)($task['task_title']), ENT_QUOTES, 'UTF-8'); ?></strong></td>
+                                        <td><?php echo htmlspecialchars((string)(isset($task['task_description']) ? $task['task_description'] : '-'), ENT_QUOTES, 'UTF-8'); ?></td>
                                         <td><?php echo date('M j, Y', strtotime($task['task_due_date'])); ?></td>
-                                        <td><span class="badge bg-warning"><?php echo $task['task_priority']; ?></span></td>
-                                        <td><span class="badge bg-info"><?php echo $task['task_status']; ?></span></td>
+                                        <td><span class="badge bg-warning"><?php echo htmlspecialchars((string)($task['task_priority']), ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                        <td><span class="badge bg-info"><?php echo htmlspecialchars((string)($task['task_status']), ENT_QUOTES, 'UTF-8'); ?></span></td>
                                     </tr>
                                 <?php endwhile; ?>
                             </tbody>
@@ -276,18 +276,18 @@ if (!empty($_GET['searchFoulWords'])) {
                         <tbody>
                             <?php foreach ($foulWordResults as $task): ?>
                                 <tr class="table-danger">
-                                    <td><strong><?php echo $task['task_title']; ?></strong></td>
-                                    <td><?php echo isset($task['task_description']) ? substr($task['task_description'], 0, 50) . '...' : '-'; ?></td>
-                                    <td><?php echo isset($task['ca_fname']) ? $task['ca_fname'] . ' ' . $task['ca_lname'] : 'Unknown'; ?></td>
-                                    <td><span class="badge bg-danger"><?php echo $task['matched_word']; ?></span></td>
-                                    <td><span class="badge bg-info"><?php echo $task['task_status']; ?></span></td>
+                                    <td><strong><?php echo htmlspecialchars((string)($task['task_title']), ENT_QUOTES, 'UTF-8'); ?></strong></td>
+                                    <td><?php echo htmlspecialchars((string)(isset($task['task_description']) ? substr($task['task_description'], 0, 50) . '...' : '-'), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><?php echo htmlspecialchars((string)(isset($task['ca_fname']) ? $task['ca_fname'] . ' ' . $task['ca_lname'] : 'Unknown'), ENT_QUOTES, 'UTF-8'); ?></td>
+                                    <td><span class="badge bg-danger"><?php echo htmlspecialchars((string)($task['matched_word']), ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                    <td><span class="badge bg-info"><?php echo htmlspecialchars((string)($task['task_status']), ENT_QUOTES, 'UTF-8'); ?></span></td>
                                     <td class="text-end">
                                         <?php if (isset($task['user_id'])): ?>
                                             <form method="post" action="admindashboard.php?searchFoulWords=1" class="d-inline">
-                                                <input type="hidden" name="userId" value="<?php echo $task['user_id']; ?>">
-                                                <input type="hidden" name="action" value="<?php echo (isset($task['ca_status']) && $task['ca_status'] === 'Active') ? 'deactivate' : 'activate'; ?>">
-                                                <button type="submit" class="btn btn-sm <?php echo (isset($task['ca_status']) && $task['ca_status'] === 'Active') ? 'btn-danger' : 'btn-success'; ?>" onclick="return confirm('Change status for this user?');">
-                                                    <?php echo (isset($task['ca_status']) && $task['ca_status'] === 'Active') ? 'Suspend Account' : 'Reactivate'; ?>
+                                                <input type="hidden" name="userId" value="<?php echo htmlspecialchars((string)($task['user_id']), ENT_QUOTES, 'UTF-8'); ?>">
+                                                <input type="hidden" name="action" value="<?php echo htmlspecialchars((string)((isset($task['ca_status']) && $task['ca_status'] === 'Active') ? 'deactivate' : 'activate'), ENT_QUOTES, 'UTF-8'); ?>">
+                                                <button type="submit" class="btn btn-sm <?php echo htmlspecialchars((string)((isset($task['ca_status']) && $task['ca_status'] === 'Active') ? 'btn-danger' : 'btn-success'), ENT_QUOTES, 'UTF-8'); ?>" onclick="return confirm('Change status for this user?');">
+                                                    <?php echo htmlspecialchars((string)((isset($task['ca_status']) && $task['ca_status'] === 'Active') ? 'Suspend Account' : 'Reactivate'), ENT_QUOTES, 'UTF-8'); ?>
                                                 </button>
                                             </form>
                                         <?php endif; ?>
@@ -333,7 +333,7 @@ if (!empty($_GET['searchFoulWords'])) {
                         <form class="search-bar mb-4" method="get" action="admindashboard.php">
                             <div class="row">
                                 <div class="col-md-8">
-                                    <input type="search" name="search" class="form-control" placeholder="Search user by name, username, or email" value="<?php echo $search; ?>">
+                                    <input type="search" name="search" class="form-control" placeholder="Search user by name, username, or email" value="<?php echo htmlspecialchars((string)($search), ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
                                 <div class="col-md-4">
                                     <button type="submit" class="btn btn-primary w-100">Search</button>
@@ -359,31 +359,31 @@ if (!empty($_GET['searchFoulWords'])) {
                                     <?php if ($usersResult && $usersResult->num_rows > 0): ?>
                                         <?php while ($user = $usersResult->fetch_assoc()): ?>
                                             <tr>
-                                                <td><?php echo $user['ca_Id']; ?></td>
+                                                <td><?php echo htmlspecialchars((string)($user['ca_Id']), ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <td>
                                                     <div class="d-flex align-items-center gap-3">
-                                                        <img src="<?php echo $user['ca_ImgPath'] ?: 'https://via.placeholder.com/64'; ?>" width="52" height="52" alt="Avatar">
+                                                        <img src="<?php echo htmlspecialchars((string)($user['ca_ImgPath'] ?: 'https://via.placeholder.com/64'), ENT_QUOTES, 'UTF-8'); ?>" width="52" height="52" alt="Avatar">
                                                         <div>
-                                                            <strong><?php echo $user['ca_fname'] . ' ' . $user['ca_lname']; ?></strong><br>
-                                                            <small class="text-muted"><?php echo $user['ca_gender']; ?></small>
+                                                            <strong><?php echo htmlspecialchars((string)($user['ca_fname'] . ' ' . $user['ca_lname']), ENT_QUOTES, 'UTF-8'); ?></strong><br>
+                                                            <small class="text-muted"><?php echo htmlspecialchars((string)($user['ca_gender']), ENT_QUOTES, 'UTF-8'); ?></small>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td><?php echo $user['ca_email']; ?></td>
-                                                <td><?php echo $user['ca_userName']; ?></td>
-                                                <td><?php echo $user['ca_userType']; ?></td>
-                                                <td><span class="badge status-badge <?php echo $user['ca_status']; ?>"><?php echo $user['ca_status']; ?></span></td>
-                                                <td><?php echo isset($user['created_at']) ? date('M j, Y', strtotime($user['created_at'])) : '-'; ?></td>
+                                                <td><?php echo htmlspecialchars((string)($user['ca_email']), ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?php echo htmlspecialchars((string)($user['ca_userName']), ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?php echo htmlspecialchars((string)($user['ca_userType']), ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><span class="badge status-badge <?php echo htmlspecialchars((string)($user['ca_status']), ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars((string)($user['ca_status']), ENT_QUOTES, 'UTF-8'); ?></span></td>
+                                                <td><?php echo htmlspecialchars((string)(isset($user['created_at']) ? date('M j, Y', strtotime($user['created_at'])) : '-'), ENT_QUOTES, 'UTF-8'); ?></td>
                                                 <td class="text-end">
                                                     <div class="d-flex gap-2 justify-content-end flex-wrap">
                                                         <?php if (strtolower($user['ca_userType']) !== 'admin' && strtolower($user['ca_userType']) !== 'administrator'): ?>
-                                                            <a href="?viewUserTasks=<?php echo $user['ca_Id']; ?>" class="btn btn-sm btn-outline-info">View Tasks</a>
+                                                            <a href="?viewUserTasks=<?php echo htmlspecialchars((string)($user['ca_Id']), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-info">View Tasks</a>
                                                         <?php endif; ?>
                                                         <form method="post" action="admindashboard.php" class="d-inline">
-                                                            <input type="hidden" name="userId" value="<?php echo $user['ca_Id']; ?>">
-                                                            <input type="hidden" name="action" value="<?php echo $user['ca_status'] === 'Active' ? 'deactivate' : 'activate'; ?>">
-                                                            <button type="submit" class="btn btn-sm <?php echo $user['ca_status'] === 'Active' ? 'btn-outline-danger' : 'btn-outline-success'; ?>">
-                                                                <?php echo $user['ca_status'] === 'Active' ? 'Deactivate' : 'Activate'; ?>
+                                                            <input type="hidden" name="userId" value="<?php echo htmlspecialchars((string)($user['ca_Id']), ENT_QUOTES, 'UTF-8'); ?>">
+                                                            <input type="hidden" name="action" value="<?php echo htmlspecialchars((string)($user['ca_status'] === 'Active' ? 'deactivate' : 'activate'), ENT_QUOTES, 'UTF-8'); ?>">
+                                                            <button type="submit" class="btn btn-sm <?php echo htmlspecialchars((string)($user['ca_status'] === 'Active' ? 'btn-outline-danger' : 'btn-outline-success'), ENT_QUOTES, 'UTF-8'); ?>">
+                                                                <?php echo htmlspecialchars((string)($user['ca_status'] === 'Active' ? 'Deactivate' : 'Activate'), ENT_QUOTES, 'UTF-8'); ?>
                                                             </button>
                                                         </form>
                                                     </div>
@@ -417,9 +417,9 @@ if (!empty($_GET['searchFoulWords'])) {
                                     <?php if ($logsResult && $logsResult->num_rows > 0): ?>
                                         <?php while ($log = $logsResult->fetch_assoc()): ?>
                                             <tr>
-                                                <td><?php echo $log['log_id']; ?></td>
-                                                <td><?php echo $log['ca_id']; ?></td>
-                                                <td><span class="badge bg-info"><?php echo $log['ca_action']; ?></span></td>
+                                                <td><?php echo htmlspecialchars((string)($log['log_id']), ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><?php echo htmlspecialchars((string)($log['ca_id']), ENT_QUOTES, 'UTF-8'); ?></td>
+                                                <td><span class="badge bg-info"><?php echo htmlspecialchars((string)($log['ca_action']), ENT_QUOTES, 'UTF-8'); ?></span></td>
                                                 <td><?php echo date('M j, Y - H:i:s', strtotime($log['ca_datetime'])); ?></td>
                                         </tr>
                                     <?php endwhile; ?>
