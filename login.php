@@ -6,12 +6,15 @@ $errorMessage = '';
 $successRedirect = '';
 
 if (isset($_POST['sub'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $username = $_POST['username'];
     $password = $_POST['password'];
+    $passwordHash = md5($password);
 
     // Query without the status check so we can identify suspended users
-    $loginsql = "SELECT * FROM ca_users WHERE ca_userName = '" . $username . "' AND ca_userPass = '" . md5($password) . "'";
-    $result = $conn->query($loginsql);
+    $stmt = $conn->prepare("SELECT * FROM ca_users WHERE ca_userName = ? AND ca_userPass = ?");
+    $stmt->bind_param("ss", $username, $passwordHash);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result && $result->num_rows === 1) {
         $fieldnames = $result->fetch_assoc();
@@ -23,8 +26,9 @@ if (isset($_POST['sub'])) {
             $_SESSION['ca_ImgPath'] = $fieldnames['ca_ImgPath'];
             $_SESSION['student_number'] = $fieldnames['ca_Id'];
 
-            $logssql = "INSERT INTO ca_logs (ca_id, ca_action, ca_datetime) VALUES ('" . $fieldnames['ca_Id'] . "', 'Logged In', NOW())";
-            $conn->query($logssql);
+            $logStmt = $conn->prepare("INSERT INTO ca_logs (ca_id, ca_action, ca_datetime) VALUES (?, 'Logged In', NOW())");
+            $logStmt->bind_param("i", $fieldnames['ca_Id']);
+            $logStmt->execute();
 
             $userType = strtolower($fieldnames['ca_userType']);
 
