@@ -64,7 +64,6 @@ if (!empty($_GET['viewUserTasks'])) {
 
 
 $search = '';
-$whereSql = '';
 
 if (!empty($_GET['viewUserTasks'])) {
     $viewingUserTasks = true;
@@ -92,11 +91,17 @@ if (!empty($_GET['viewUserTasks'])) {
 
 if (!empty($_GET['search'])) {
     $search = trim($_GET['search']);
-    $whereSql = "WHERE ca_lname LIKE '%" . $search . "%' OR ca_fname LIKE '%" . $search . "%' OR ca_userName LIKE '%" . $search . "%' OR ca_email LIKE '%" . $search . "%'";
 }
 
-$usersSql = "SELECT * FROM ca_users " . $whereSql . " ORDER BY ca_Id DESC";
-$usersResult = $conn->query($usersSql);
+if ($search !== '') {
+    $like = '%' . $search . '%';
+    $usersStmt = $conn->prepare("SELECT * FROM ca_users WHERE ca_lname LIKE ? OR ca_fname LIKE ? OR ca_userName LIKE ? OR ca_email LIKE ? ORDER BY ca_Id DESC");
+    $usersStmt->bind_param("ssss", $like, $like, $like, $like);
+    $usersStmt->execute();
+    $usersResult = $usersStmt->get_result();
+} else {
+    $usersResult = $conn->query("SELECT * FROM ca_users ORDER BY ca_Id DESC");
+}
 
 $logsSql = "SELECT * FROM ca_logs ORDER BY ca_datetime DESC";
 $logsResult = $conn->query($logsSql);
