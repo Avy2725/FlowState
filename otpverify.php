@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -45,16 +45,22 @@
 require_once "connection.php";
 
 if (isset($_POST['ver'])) {
-    $enteredOtp = $_POST['otp'];
+    $enteredOtp = trim($_POST['otp']);
 
-    // 1. Run a quick check query to see if the entered OTP exists in the ca_otp column
-    $result = $conn->query("SELECT ca_otp FROM ca_users WHERE ca_otp = '$enteredOtp' LIMIT 1");
-    $fieldnames = $result->fetch_assoc();
+    // 1. Only a numeric OTP can match, so the 'NULL' placeholder left after verification never does
+    $fieldnames = null;
+    if (ctype_digit($enteredOtp)) {
+        $stmt = $conn->prepare("SELECT ca_otp FROM ca_users WHERE ca_otp = ? AND ca_status = 'Pending' LIMIT 1");
+        $stmt->bind_param("s", $enteredOtp);
+        $stmt->execute();
+        $fieldnames = $stmt->get_result()->fetch_assoc();
+    }
 
-    // 2. The simple IF logic: if a matching row was found, update the database!
+    // 2. If a matching pending account was found, activate it
     if ($fieldnames) {
-        $optsql = "UPDATE ca_users SET ca_status = 'Active', ca_otp = 'NULL' WHERE ca_otp = '".$enteredOtp."'";
-        $conn->query($optsql);
+        $updateStmt = $conn->prepare("UPDATE ca_users SET ca_status = 'Active', ca_otp = 'NULL' WHERE ca_otp = ? AND ca_status = 'Pending'");
+        $updateStmt->bind_param("s", $enteredOtp);
+        $updateStmt->execute();
 
         ?>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
