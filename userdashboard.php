@@ -36,15 +36,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_POST['action']) && $_POST['action'] === 'add_task') {
         $taskTitle = trim($_POST['task_title'] ?? '');
         $taskDescription = trim($_POST['task_description'] ?? '');
-        $projectId = !empty($_POST['project_id']) ? intval($_POST['project_id']) : 'NULL';
+        $projectId = !empty($_POST['project_id']) ? intval($_POST['project_id']) : null;
         $taskDueDate = trim($_POST['task_due_date'] ?? '');
         $taskPriority = in_array($_POST['task_priority'] ?? 'Medium', ['Low', 'Medium', 'High'], true) ? $_POST['task_priority'] : 'Medium';
 
         if ($taskTitle === '') {
             $error = 'Please enter a task title.';
         } else {
-            $insertSql = "INSERT INTO todo_tasks (user_id, project_id, task_title, task_description, task_due_date, task_priority, task_status, created_at, updated_at) VALUES ('" . $userId . "', " . $projectId . ", '" . addslashes($taskTitle) . "', '" . addslashes($taskDescription) . "', '" . $taskDueDate . "', '" . $taskPriority . "', 'Todo', NOW(), NOW())";
-            if ($conn->query($insertSql)) {
+            $insertStmt = $conn->prepare("INSERT INTO todo_tasks (user_id, project_id, task_title, task_description, task_due_date, task_priority, task_status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 'Todo', NOW(), NOW())");
+            $insertStmt->bind_param("iissss", $userId, $projectId, $taskTitle, $taskDescription, $taskDueDate, $taskPriority);
+            if ($insertStmt->execute()) {
                 $feedback = 'Task added successfully.';
             } else {
                 $error = 'There was a problem adding the task. Please try again.';
@@ -59,15 +60,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($projectName === '') {
             $error = 'Please enter a project name.';
         } else {
-            $safeProjectName = $conn->real_escape_string($projectName);
-            $existingProjectSql = "SELECT project_id FROM todo_projects WHERE user_id = '" . $userId . "' AND project_status = 'Active' AND LOWER(project_name) = LOWER('" . $safeProjectName . "') LIMIT 1";
-            $existingProjectResult = $conn->query($existingProjectSql);
+            $existingStmt = $conn->prepare("SELECT project_id FROM todo_projects WHERE user_id = ? AND project_status = 'Active' AND LOWER(project_name) = LOWER(?) LIMIT 1");
+            $existingStmt->bind_param("is", $userId, $projectName);
+            $existingStmt->execute();
+            $existingProjectResult = $existingStmt->get_result();
 
             if ($existingProjectResult && $existingProjectResult->num_rows > 0) {
                 $error = 'A project with this name already exists.';
             } else {
-                $insertSql = "INSERT INTO todo_projects (user_id, project_name, project_color, project_status, created_at, updated_at) VALUES ('" . $userId . "', '" . $safeProjectName . "', '" . $conn->real_escape_string($projectColor) . "', 'Active', NOW(), NOW())";
-                if ($conn->query($insertSql)) {
+                $insertStmt = $conn->prepare("INSERT INTO todo_projects (user_id, project_name, project_color, project_status, created_at, updated_at) VALUES (?, ?, ?, 'Active', NOW(), NOW())");
+                $insertStmt->bind_param("iss", $userId, $projectName, $projectColor);
+                if ($insertStmt->execute()) {
                     header('Location: userdashboard.php');
                     exit();
                 } else {
@@ -109,13 +112,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $taskDescription = trim($_POST['task_description'] ?? '');
         $taskDueDate = trim($_POST['task_due_date'] ?? '');
         $taskPriority = in_array($_POST['task_priority'] ?? 'Medium', ['Low', 'Medium', 'High'], true) ? $_POST['task_priority'] : 'Medium';
-        $projectId = !empty($_POST['project_id']) ? intval($_POST['project_id']) : 'NULL';
+        $projectId = !empty($_POST['project_id']) ? intval($_POST['project_id']) : null;
 
         if ($taskTitle === '') {
             $error = 'Please enter a task title.';
         } else {
-            $sql = "UPDATE todo_tasks SET task_title = '" . addslashes($taskTitle) . "', task_description = '" . addslashes($taskDescription) . "', task_due_date = '" . $taskDueDate . "', task_priority = '" . $taskPriority . "', project_id = " . $projectId . ", updated_at = NOW() WHERE task_id = '" . $taskId . "' AND user_id = '" . $userId . "'";
-            if ($conn->query($sql)) {
+            $updateStmt = $conn->prepare("UPDATE todo_tasks SET task_title = ?, task_description = ?, task_due_date = ?, task_priority = ?, project_id = ?, updated_at = NOW() WHERE task_id = ? AND user_id = ?");
+            $updateStmt->bind_param("ssssiii", $taskTitle, $taskDescription, $taskDueDate, $taskPriority, $projectId, $taskId, $userId);
+            if ($updateStmt->execute()) {
                 $feedback = 'Task updated successfully.';
             } else {
                 $error = 'Unable to update the task. Please try again.';
