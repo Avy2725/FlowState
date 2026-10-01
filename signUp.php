@@ -114,6 +114,7 @@ session_start();
 
 <?php
 require_once "connection.php";
+require_once "password_helper.php";
 require_once "varifyotpemail.php";
 
 
@@ -126,7 +127,7 @@ if(isset($_POST['sub'])) {
     $contact = $_POST['contact'];
     $additionalInfo = $_POST['additionalInfo'];
     $username = $_POST['username'];
-    $userPassword = md5($_POST['password']);
+    $userPassword = hash_new_password($conn, $_POST['password']);
     $otp = random_int(100000, 999999);
     $fullname = $firstName . " " . $lastName;
 

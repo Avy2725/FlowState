@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once "connection.php";
+require_once "password_helper.php";
 
 $errorMessage = '';
 $successRedirect = '';
@@ -8,16 +9,22 @@ $successRedirect = '';
 if (isset($_POST['sub'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
-    $passwordHash = md5($password);
 
     // Query without the status check so we can identify suspended users
-    $stmt = $conn->prepare("SELECT * FROM ca_users WHERE ca_userName = ? AND ca_userPass = ?");
-    $stmt->bind_param("ss", $username, $passwordHash);
+    $stmt = $conn->prepare("SELECT * FROM ca_users WHERE ca_userName = ?");
+    $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
+    $fieldnames = $result ? $result->fetch_assoc() : null;
 
-    if ($result && $result->num_rows === 1) {
-        $fieldnames = $result->fetch_assoc();
+    if ($fieldnames && verify_stored_password($password, $fieldnames['ca_userPass'])) {
+        // Upgrade legacy md5 hashes once the column can hold a real hash
+        if (is_legacy_md5_hash($fieldnames['ca_userPass']) && password_column_fits_hash($conn)) {
+            $newHash = password_hash($password, PASSWORD_DEFAULT);
+            $rehashStmt = $conn->prepare("UPDATE ca_users SET ca_userPass = ? WHERE ca_Id = ?");
+            $rehashStmt->bind_param("si", $newHash, $fieldnames['ca_Id']);
+            $rehashStmt->execute();
+        }
 
         // Check the user's status
         if ($fieldnames['ca_status'] === 'Active') {
