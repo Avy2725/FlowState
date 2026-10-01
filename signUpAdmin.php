@@ -115,39 +115,43 @@ require_once "varifyotpemail.php";
 
 
 if(isset($_POST['sub'])) {
-  // Sanitize incoming values to avoid accidental SQL injection while keeping your string-style SQL
-  $lastName = $conn->real_escape_string($_POST['lastName'] ?? '');
-  $firstName = $conn->real_escape_string($_POST['firstName'] ?? '');
-  $gender = $conn->real_escape_string($_POST['gender'] ?? '');
-  $address = $conn->real_escape_string($_POST['address'] ?? '');
-  $email = $conn->real_escape_string($_POST['email'] ?? '');
-  $contact = $conn->real_escape_string($_POST['contact'] ?? '');
-  $additionalInfo = $conn->real_escape_string($_POST['additionalInfo'] ?? '');
-  $username = $conn->real_escape_string($_POST['username'] ?? '');
+  // Values are bound as parameters in the prepared statement below
+  $lastName = $_POST['lastName'] ?? '';
+  $firstName = $_POST['firstName'] ?? '';
+  $gender = $_POST['gender'] ?? '';
+  $address = $_POST['address'] ?? '';
+  $email = $_POST['email'] ?? '';
+  $contact = $_POST['contact'] ?? '';
+  $additionalInfo = $_POST['additionalInfo'] ?? '';
+  $username = $_POST['username'] ?? '';
   $userPassword = md5($_POST['password'] ?? '');
   $otp = rand(0000000,9999999);
   $fullname = $firstName . " " . $lastName;
 
   // Handle uploaded image safely
-  $imagepath = '';
-  if (!empty($_FILES['imgUp']['name']) && is_uploaded_file($_FILES['imgUp']['tmp_name'])) {
-    $uploadDir = 'CA_IMG/';
-    $safeName = basename($_FILES['imgUp']['name']);
-    $imagepath = $uploadDir . $conn->real_escape_string($safeName);
-    move_uploaded_file($_FILES['imgUp']['tmp_name'], $imagepath);
-  }
+    $imagepath = '';
+    $allowedTypes = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif'];
+    if (!empty($_FILES['imgUp']['name']) && is_uploaded_file($_FILES['imgUp']['tmp_name'])) {
+        $ext = strtolower(pathinfo($_FILES['imgUp']['name'], PATHINFO_EXTENSION));
+        $mime = mime_content_type($_FILES['imgUp']['tmp_name']);
+        if (isset($allowedTypes[$ext]) && $allowedTypes[$ext] === $mime) {
+            $imagepath = 'CA_IMG/' . bin2hex(random_bytes(16)) . '.' . $ext;
+            move_uploaded_file($_FILES['imgUp']['tmp_name'], $imagepath);
+        }
+    }
 
   // Force the user type to Admin on the server side (do not accept from the client)
   $userType = 'Admin';
 
-  $sql = "INSERT INTO ca_users (ca_fname, ca_lname, ca_gender, ca_email, ca_phoneNo, ca_address, ca_addInfo, ca_userName, ca_userPass, ca_ImgPath, ca_otp, ca_status, ca_userType, created_at) VALUES ('" . $firstName . "', '" . $lastName . "', '" . $gender . "', '" . $email . "', '" . $contact . "', '" . $address . "', '" . $additionalInfo . "', '" . $username . "', '" . $userPassword . "', '" . $imagepath . "', '" . $otp . "', 'Pending', '" . $userType . "', NOW())";
+  $stmt = $conn->prepare("INSERT INTO ca_users (ca_fname, ca_lname, ca_gender, ca_email, ca_phoneNo, ca_address, ca_addInfo, ca_userName, ca_userPass, ca_ImgPath, ca_otp, ca_status, ca_userType, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pending', ?, NOW())");
+  $stmt->bind_param("ssssssssssss", $firstName, $lastName, $gender, $email, $contact, $address, $additionalInfo, $username, $userPassword, $imagepath, $otp, $userType);
 
-  $result = $conn->query($sql);
+  $result = $stmt->execute();
 
 
 
     
-    if ($result === TRUE) {
+    if ($result === true) {
         session_start();
         $_SESSION['email'] = $email;
         $_SESSION['otp'] = $otp;
